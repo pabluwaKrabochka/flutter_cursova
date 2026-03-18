@@ -1,16 +1,19 @@
-# flutter_cursova
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+lib/
+├── app/
+│   ├── config/         # Константи, оточення (env)
+│   ├── di/             # Service Locator (get_it)
+│   ├── router/         # Навігація (якщо будеш додавати)
+│   ├── theme/          # Кольори, шрифти, теми
+│   └── utils/          # Хелпери, логер, валідатори
+├── data/
+│   ├── models/         # Глобальні моделі даних
+│   ├── services/       # SQLite, Shared Preferences
+│   └── repositories/   # Глобальні репозиторії (напр. налаштування теми)
+├── domain/             # Глобальні сутності та Use Cases
+├── features/           # Кожна фіча — це окремий світ
+│   ├── transactions/   # Фіча транзакцій
+│   │   ├── data/       # Репозиторії фічі
+│   │   ├── state/      # BLoC / Cubit
+│   │   └── ui/         # Сторінки та специфічні віджети
+│   └── analytics/      # Фіча графіків (fl_chart)
+└── shared/             # Спільні віджети (кнопки, текст-філди)
