@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../data/services/storage/database_service.dart'; // Додали імпорт
+import '../../data/services/storage/database_service.dart';
+import '../../features/transactions/domain/transaction_repository.dart';
+import '../../features/transactions/data/transaction_repository_impl.dart';
 
 final sl = GetIt.instance;
 
@@ -10,7 +12,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => sharedPreferences);
 
   // Services
-  sl.registerLazySingleton(() => DatabaseService()); // Реєструємо сервіс бази даних
-  
-  // Далі будуть репозиторії та кубіти...
+  sl.registerLazySingleton(() => DatabaseService());
+
+  // Repositories
+  // Ми кажемо: "Коли хтось попросить TransactionRepository, дай йому TransactionRepositoryImpl"
+  sl.registerLazySingleton<TransactionRepository>(
+    () => TransactionRepositoryImpl(sl<DatabaseService>()),
+  );
 }

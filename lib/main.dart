@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cursova/app/di/injection_container.dart' as di;
+import 'package:flutter_cursova/app/di/service_locator.dart' as di;
 
 import 'app/theme/app_theme.dart';
 
