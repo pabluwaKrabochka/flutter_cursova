@@ -25,6 +25,7 @@ mixin _$TransactionModel {
   double get amount => throw _privateConstructorUsedError;
   int get timestamp => throw _privateConstructorUsedError;
   int get categoryId => throw _privateConstructorUsedError;
+  String get currency => throw _privateConstructorUsedError; // НОВЕ ПОЛЕ
   String? get note => throw _privateConstructorUsedError;
 
   /// Serializes this TransactionModel to a JSON map.
@@ -49,6 +50,7 @@ abstract class $TransactionModelCopyWith<$Res> {
     double amount,
     int timestamp,
     int categoryId,
+    String currency,
     String? note,
   });
 }
@@ -72,6 +74,7 @@ class _$TransactionModelCopyWithImpl<$Res, $Val extends TransactionModel>
     Object? amount = null,
     Object? timestamp = null,
     Object? categoryId = null,
+    Object? currency = null,
     Object? note = freezed,
   }) {
     return _then(
@@ -92,6 +95,10 @@ class _$TransactionModelCopyWithImpl<$Res, $Val extends TransactionModel>
                 ? _value.categoryId
                 : categoryId // ignore: cast_nullable_to_non_nullable
                       as int,
+            currency: null == currency
+                ? _value.currency
+                : currency // ignore: cast_nullable_to_non_nullable
+                      as String,
             note: freezed == note
                 ? _value.note
                 : note // ignore: cast_nullable_to_non_nullable
@@ -116,6 +123,7 @@ abstract class _$$TransactionModelImplCopyWith<$Res>
     double amount,
     int timestamp,
     int categoryId,
+    String currency,
     String? note,
   });
 }
@@ -138,6 +146,7 @@ class __$$TransactionModelImplCopyWithImpl<$Res>
     Object? amount = null,
     Object? timestamp = null,
     Object? categoryId = null,
+    Object? currency = null,
     Object? note = freezed,
   }) {
     return _then(
@@ -158,6 +167,10 @@ class __$$TransactionModelImplCopyWithImpl<$Res>
             ? _value.categoryId
             : categoryId // ignore: cast_nullable_to_non_nullable
                   as int,
+        currency: null == currency
+            ? _value.currency
+            : currency // ignore: cast_nullable_to_non_nullable
+                  as String,
         note: freezed == note
             ? _value.note
             : note // ignore: cast_nullable_to_non_nullable
@@ -175,6 +188,7 @@ class _$TransactionModelImpl implements _TransactionModel {
     required this.amount,
     required this.timestamp,
     required this.categoryId,
+    required this.currency,
     this.note,
   });
 
@@ -190,11 +204,14 @@ class _$TransactionModelImpl implements _TransactionModel {
   @override
   final int categoryId;
   @override
+  final String currency;
+  // НОВЕ ПОЛЕ
+  @override
   final String? note;
 
   @override
   String toString() {
-    return 'TransactionModel(id: $id, amount: $amount, timestamp: $timestamp, categoryId: $categoryId, note: $note)';
+    return 'TransactionModel(id: $id, amount: $amount, timestamp: $timestamp, categoryId: $categoryId, currency: $currency, note: $note)';
   }
 
   @override
@@ -208,13 +225,22 @@ class _$TransactionModelImpl implements _TransactionModel {
                 other.timestamp == timestamp) &&
             (identical(other.categoryId, categoryId) ||
                 other.categoryId == categoryId) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
             (identical(other.note, note) || other.note == note));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, amount, timestamp, categoryId, note);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    amount,
+    timestamp,
+    categoryId,
+    currency,
+    note,
+  );
 
   /// Create a copy of TransactionModel
   /// with the given fields replaced by the non-null parameter values.
@@ -239,6 +265,7 @@ abstract class _TransactionModel implements TransactionModel {
     required final double amount,
     required final int timestamp,
     required final int categoryId,
+    required final String currency,
     final String? note,
   }) = _$TransactionModelImpl;
 
@@ -253,6 +280,8 @@ abstract class _TransactionModel implements TransactionModel {
   int get timestamp;
   @override
   int get categoryId;
+  @override
+  String get currency; // НОВЕ ПОЛЕ
   @override
   String? get note;
 

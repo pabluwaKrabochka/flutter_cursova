@@ -44,4 +44,38 @@ class TransactionRepositoryImpl implements TransactionRepository {
     
     return maps.map((map) => CategoryModel.fromJson(map)).toList();
   }
+
+  @override
+  Future<void> addCategory(CategoryModel category) async {
+    final db = await _dbService.database;
+    await db.insert('categories', category.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  @override
+  Future<void> deleteCategory(int id) async {
+    final db = await _dbService.database;
+    await db.delete('categories', where: 'id = ?', whereArgs: [id]);
+  }
+
+  @override
+  Future<void> updateTransaction(TransactionModel transaction) async {
+    final db = await _dbService.database;
+    await db.update(
+      'transactions', 
+      transaction.toJson(), 
+      where: 'id = ?', 
+      whereArgs: [transaction.id]
+    );
+  }
+
+  @override
+  Future<void> updateCategory(CategoryModel category) async {
+    final db = await _dbService.database;
+    await db.update(
+      'categories', 
+      category.toJson(), 
+      where: 'id = ?', 
+      whereArgs: [category.id]
+    );
+  }
 }

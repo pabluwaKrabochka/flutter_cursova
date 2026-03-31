@@ -1,7 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:flutter_cursova/data/models/category_model.dart';
-import 'package:flutter_cursova/data/models/transaction_model.dart';
 
 class DatabaseService {
   static Database? _database;
@@ -12,13 +10,18 @@ class DatabaseService {
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
+ Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
     return await openDatabase(
       path,
       version: 1,
+      // ДОДАЄМО ЦЕЙ БЛОК:
+      onConfigure: (db) async {
+        // Вмикаємо підтримку Foreign Keys для каскадного видалення
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
       onCreate: _createDB,
     );
   }
@@ -40,6 +43,7 @@ class DatabaseService {
         amount REAL NOT NULL,
         timestamp INTEGER NOT NULL,
         categoryId INTEGER NOT NULL,
+        currency TEXT NOT NULL,
         note TEXT,
         FOREIGN KEY (categoryId) REFERENCES categories (id) ON DELETE CASCADE
       )

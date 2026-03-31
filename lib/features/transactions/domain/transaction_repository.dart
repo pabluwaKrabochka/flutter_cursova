@@ -2,15 +2,14 @@ import '../../../../../data/models/category_model.dart';
 import '../../../../../data/models/transaction_model.dart';
 
 abstract class TransactionRepository {
-  // Отримати всі записи
   Future<List<TransactionModel>> getAllTransactions();
-  
-  // Додати новий запис (витрату чи дохід)
   Future<void> addTransaction(TransactionModel transaction);
-  
-  // Видалити запис
   Future<void> deleteTransaction(int id);
-  
-  // Отримати список категорій для вибору
   Future<List<CategoryModel>> getAllCategories();
+  
+  // ДОДАЙ ЦІ ДВА РЯДКИ:
+  Future<void> addCategory(CategoryModel category);
+  Future<void> deleteCategory(int id);
+  Future<void> updateTransaction(TransactionModel transaction);
+  Future<void> updateCategory(CategoryModel category);
 }

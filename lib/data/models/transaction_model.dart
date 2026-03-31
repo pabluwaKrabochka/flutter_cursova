@@ -10,6 +10,7 @@ class TransactionModel with _$TransactionModel {
     required double amount,
     required int timestamp,
     required int categoryId,
+    required String currency, // НОВЕ ПОЛЕ
     String? note,
   }) = _TransactionModel;
 

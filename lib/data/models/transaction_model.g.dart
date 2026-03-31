@@ -13,6 +13,7 @@ _$TransactionModelImpl _$$TransactionModelImplFromJson(
   amount: (json['amount'] as num).toDouble(),
   timestamp: (json['timestamp'] as num).toInt(),
   categoryId: (json['categoryId'] as num).toInt(),
+  currency: json['currency'] as String,
   note: json['note'] as String?,
 );
 
@@ -23,5 +24,6 @@ Map<String, dynamic> _$$TransactionModelImplToJson(
   'amount': instance.amount,
   'timestamp': instance.timestamp,
   'categoryId': instance.categoryId,
+  'currency': instance.currency,
   'note': instance.note,
 };

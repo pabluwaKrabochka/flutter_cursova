@@ -1,3 +1,4 @@
+import 'package:flutter_cursova/features/transactions/presentation/cubit/transaction_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/services/storage/database_service.dart';
@@ -19,4 +20,7 @@ Future<void> init() async {
   sl.registerLazySingleton<TransactionRepository>(
     () => TransactionRepositoryImpl(sl<DatabaseService>()),
   );
+
+ // Blocs / Cubits
+  sl.registerFactory(() => TransactionCubit(sl<TransactionRepository>()));
 }
