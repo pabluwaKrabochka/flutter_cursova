@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cursova/features/transactions/presentation/screens/add_transaction_screen.dart';
+import 'package:lottie/lottie.dart';
+import '../../../../data/models/category_model.dart';
+import '../../../../data/models/transaction_model.dart';
 import '../cubit/transaction_cubit.dart';
 import '../cubit/transaction_state.dart';
 import 'package:intl/intl.dart';
@@ -63,7 +66,6 @@ class HomeScreen extends StatelessWidget {
                               initialDatePickerMode: DatePickerMode.year,
                             );
                             
-                            // ВИПРАВЛЕННЯ ASYNC GAP:
                             if (selectedDate != null && context.mounted) {
                               context.read<TransactionCubit>().setMonth(selectedDate);
                             }
@@ -100,9 +102,39 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         const Text('Загальний баланс за місяць', style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 8),
-                        Text(
-                          '${totalBalance.toStringAsFixed(2)} ₴',
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              totalBalance.toStringAsFixed(2),
+                              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 4),
+                            PopupMenuButton<String>(
+                              initialValue: context.read<TransactionCubit>().mainCurrency,
+                              onSelected: (newValue) {
+                                context.read<TransactionCubit>().changeMainCurrency(newValue);
+                              },
+                              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                                const PopupMenuItem<String>(value: '₴', child: Text('₴ - Гривня')),
+                                const PopupMenuItem<String>(value: '\$', child: Text('\$ - Долар')),
+                                const PopupMenuItem<String>(value: '€', child: Text('€ - Євро')),
+                              ],
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 6.0),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      context.read<TransactionCubit>().mainCurrency,
+                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                                    ),
+                                    const Icon(Icons.arrow_drop_down, size: 20, color: Colors.blue),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -147,55 +179,61 @@ class HomeScreen extends StatelessWidget {
                     ),
 
                   // 4. Список транзакцій
-                  Expanded(
-                    child: sortedList.isEmpty
-                        ? const Center(child: Text('Транзакцій ще немає'))
-                        : ListView.builder(
-                            itemCount: sortedList.length,
-                            itemBuilder: (context, index) {
-                              final transaction = sortedList[index];
-                              final category = categories.firstWhere((c) => c.id == transaction.categoryId);
-                              final isIncome = category.type == 'income';
-                              final currentGroupTitle = _getGroupTitle(transaction.timestamp);
-                              
-                              bool showHeader = index == 0 || _getGroupTitle(sortedList[index - 1].timestamp) != currentGroupTitle;
+               // Знайдіть цей блок у вашому коді (приблизно 193 рядок):
+Expanded(
+  child: sortedList.isEmpty
+      ? SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 30),
+              Lottie.asset(
+                'assets/emptyState.json',
+                height: 200,
+                repeat: true,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Транзакцій ще немає',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+        )
+      : ListView.builder(
+          // --- ДОДАЄМО ЦЕЙ РЯДОК ---
+          padding: const EdgeInsets.only(bottom: 80), // Відступ 80 пікселів знизу
+          // -------------------------
+          itemCount: sortedList.length,
+          itemBuilder: (context, index) {
+            final transaction = sortedList[index];
+            final category = categories.firstWhere((c) => c.id == transaction.categoryId);
+            final isIncome = category.type == 'income';
+            final currentGroupTitle = _getGroupTitle(transaction.timestamp);
+            
+            bool showHeader = index == 0 || _getGroupTitle(sortedList[index - 1].timestamp) != currentGroupTitle;
 
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (showHeader)
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                      child: Text(currentGroupTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                                    ),
-                                  ListTile(
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => BlocProvider.value(
-                                        value: context.read<TransactionCubit>(),
-                                        child: AddTransactionScreen(categories: categories, transactionToEdit: transaction),
-                                      )),
-                                    ),
-                                    leading: CircleAvatar(
-                                      backgroundColor: Color(int.parse(category.colorHex)),
-                                      child: Icon(IconData(category.iconCode, fontFamily: 'MaterialIcons'), color: Colors.white),
-                                    ),
-                                    title: Text(category.name),
-                                    subtitle: Text(transaction.note ?? DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(transaction.timestamp))),
-                                    trailing: Text(
-                                      '${isIncome ? '+' : '-'}${transaction.amount.toStringAsFixed(2)} ${transaction.currency}',
-                                      style: TextStyle(
-                                        color: isIncome ? Colors.green : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showHeader)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(currentGroupTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                   ),
+                _TransactionListItem(
+                  key: ValueKey(transaction.id),
+                  transaction: transaction,
+                  category: category,
+                  allCategories: categories,
+                  isIncome: isIncome,
+                ),
+              ],
+            );
+          },
+        ),
+),
                 ],
               );
             },
@@ -224,6 +262,148 @@ class HomeScreen extends StatelessWidget {
             child: const Icon(Icons.add),
           );
         },
+      ),
+    );
+  }
+}
+// --- ОНОВЛЕНИЙ ВІДЖЕТ ДЛЯ КОЖНОЇ ТРАНЗАКЦІЇ ---
+class _TransactionListItem extends StatefulWidget {
+  final TransactionModel transaction;
+  final CategoryModel category;
+  final List<CategoryModel> allCategories;
+  final bool isIncome;
+
+  const _TransactionListItem({
+    super.key, // Key вже на місці
+    required this.transaction,
+    required this.category,
+    required this.allCategories,
+    required this.isIncome,
+  });
+
+  @override
+  State<_TransactionListItem> createState() => _TransactionListItemState();
+}
+
+class _TransactionListItemState extends State<_TransactionListItem> {
+  bool _isExpanded = false;
+
+  @override
+  void didUpdateWidget(covariant _TransactionListItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Скидаємо стан розкриття, якщо дані в цій комірці списку змінилися
+    if (widget.transaction.id != oldWidget.transaction.id) {
+      _isExpanded = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasNote = widget.transaction.note != null && widget.transaction.note!.trim().isNotEmpty;
+    
+    // Форматування дати: 31.03.2026 14:30
+    final transactionDate = DateTime.fromMillisecondsSinceEpoch(widget.transaction.timestamp);
+    final formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(transactionDate);
+
+    return Dismissible(
+      key: Key(widget.transaction.id.toString()),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Підтвердження"),
+            content: const Text("Ви впевнені, що хочете видалити цю транзакцію?"),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Скасувати")),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true), 
+                child: const Text("Видалити", style: TextStyle(color: Colors.red))
+              ),
+            ],
+          ),
+        );
+      },
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (_) {
+        context.read<TransactionCubit>().deleteTransaction(widget.transaction.id!);
+      },
+      child: Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Color(int.parse(widget.category.colorHex)),
+              child: Icon(IconData(widget.category.iconCode, fontFamily: 'MaterialIcons'), color: Colors.white),
+            ),
+            title: Text(widget.category.name),
+            subtitle: Text(formattedDate), // Новий формат дати
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Кнопка редагування
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.grey, size: 20),
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => BlocProvider.value(
+                        value: context.read<TransactionCubit>(),
+                        child: AddTransactionScreen(
+                          categories: widget.allCategories, 
+                          transactionToEdit: widget.transaction
+                        ),
+                      )),
+                    );
+                  },
+                ),
+                // Сума
+                Text(
+                  '${widget.isIncome ? '+' : '-'}${widget.transaction.amount.toStringAsFixed(2)} ${widget.transaction.currency}',
+                  style: TextStyle(
+                    color: widget.isIncome ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                // Стрілочка: малюється ТІЛЬКИ якщо є примітка. БЕЗ else блоку.
+                if (hasNote)
+                  IconButton(
+                    icon: Icon(
+                      _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right, 
+                      color: Colors.grey
+                    ),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.only(left: 8),
+                    onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                  ),
+              ],
+            ),
+          ),
+          
+          // Блок примітки
+          AnimatedCrossFade(
+            firstChild: const SizedBox(height: 0, width: double.infinity),
+            secondChild: hasNote 
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.only(left: 72, right: 16, bottom: 12),
+                    child: Text(
+                      'Примітка: ${widget.transaction.note}',
+                      style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                    ),
+                  )
+                : const SizedBox(height: 0),
+            crossFadeState: _isExpanded && hasNote ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 250),
+          ),
+        ],
       ),
     );
   }
