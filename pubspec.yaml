@@ -37,11 +37,23 @@ dependencies:
   lottie: ^3.3.2
   http: ^1.6.0
   flutter_colorpicker: ^1.1.0
+  carousel_slider: ^5.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  # image_path: "assets/appLogo.jpg"
+  # adaptive_icon_foreground: "assets/appLogo.jpg"
+  image_path: "assets/appLogo.png"
+  adaptive_icon_foreground: "assets/appLogo.png"
+  adaptive_icon_background: "#FFFFFF"
+  remove_alpha_ios: true
 
   # Інструменти для генерації коду (Freezed & JSON Serializable)
   build_runner: ^2.4.13
