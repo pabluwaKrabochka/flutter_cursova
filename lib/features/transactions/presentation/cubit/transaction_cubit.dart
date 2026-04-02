@@ -1,3 +1,4 @@
+// ФАЙЛ: lib/features/transactions/presentation/cubit/transaction_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cursova/data/models/category_model.dart';
 import 'package:flutter_cursova/data/services/network/currency_api_service.dart';
@@ -9,18 +10,21 @@ import 'transaction_state.dart';
 class TransactionCubit extends Cubit<TransactionState> {
   final TransactionRepository _repository;
 
-  DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month);
+  DateTime currentDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
   String mainCurrency = '₴';
 
-  TransactionCubit(this._repository) : super(const TransactionState.initial());
+  TransactionCubit(this._repository) : super(const TransactionState.initial()) {
+    loadData();
+  }
 
   Future<void> loadData() async {
-    final isAlreadyLoaded = state.maybeMap(
+    // Правильна перевірка стану через freezed
+    final isLoaded = state.maybeMap(
       loaded: (_) => true,
       orElse: () => false,
     );
 
-    if (!isAlreadyLoaded) {
+    if (!isLoaded) {
       emit(const TransactionState.loading());
     }
 
@@ -40,16 +44,11 @@ class TransactionCubit extends Cubit<TransactionState> {
       double balance = 0;
       for (var t in filteredTransactions) {
         final category = categories.firstWhere((c) => c.id == t.categoryId);
-
         double finalAmount = 0;
 
-        // --- ВИПРАВЛЕНА ЛОГІКА ТУТ ---
-        // Якщо валюта транзакції співпадає з обраною головною валютою — конвертація НЕ потрібна
         if (t.currency == mainCurrency) {
           finalAmount = t.amount;
         } else {
-          // Якщо валюти різні — конвертуємо через гривню
-          // 1. Переводимо суму транзакції в ГРИВНІ (базову валюту)
           double amountInUAH = t.amount;
           if (t.currency == '\$') {
             final usdBuyRate = double.parse(rates.firstWhere((r) => r['ccy'] == 'USD')['buy']);
@@ -59,7 +58,6 @@ class TransactionCubit extends Cubit<TransactionState> {
             amountInUAH = t.amount * eurBuyRate;
           }
 
-          // 2. Переводимо ГРИВНІ в головну валюту (mainCurrency)
           finalAmount = amountInUAH;
           if (mainCurrency == '\$') {
             final usdSaleRate = double.parse(rates.firstWhere((r) => r['ccy'] == 'USD')['sale']);
@@ -69,7 +67,6 @@ class TransactionCubit extends Cubit<TransactionState> {
             finalAmount = amountInUAH / eurSaleRate;
           }
         }
-        // ------------------------------
 
         if (category.type == 'income') {
           balance += finalAmount;
@@ -82,14 +79,17 @@ class TransactionCubit extends Cubit<TransactionState> {
         transactions: filteredTransactions,
         categories: categories,
         totalBalance: balance,
+        date: currentDate, // <--- ПЕРЕДАЄМО ДАТУ В СТАН
         currencyRates: rates,
       ));
     } catch (e) {
-      emit(TransactionState.error('Помилка завантаження даних: $e'));
+      emit(TransactionState.error('Помилка: $e'));
     }
   }
 
-  // Решта методів (changeMainCurrency, setMonth і т.д.) залишаються без змін
+  // Зверни увагу: ніяких emit(loading()) більше немає!
+  // Екран буде оновлюватися МИТТЄВО і ПЛАВНО.
+  
   Future<void> changeMainCurrency(String newCurrency) async {
     mainCurrency = newCurrency;
     final prefs = await SharedPreferences.getInstance();
@@ -98,12 +98,12 @@ class TransactionCubit extends Cubit<TransactionState> {
   }
 
   void setMonth(DateTime newDate) {
-    currentDate = DateTime(newDate.year, newDate.month);
+    currentDate = DateTime(newDate.year, newDate.month, 1);
     loadData();
   }
 
   void changeMonth(int offset) {
-    currentDate = DateTime(currentDate.year, currentDate.month + offset);
+    currentDate = DateTime(currentDate.year, currentDate.month + offset, 1);
     loadData();
   }
 
@@ -130,7 +130,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       await _repository.addCategory(category);
       await loadData();
     } catch (e) {
-      emit(TransactionState.error('Помилка додавання категорії: $e'));
+      emit(TransactionState.error('Помилка додавання: $e'));
     }
   }
 
@@ -148,7 +148,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       await _repository.updateCategory(category);
       await loadData();
     } catch (e) {
-      emit(TransactionState.error('Помилка оновлення категорії: $e'));
+      emit(TransactionState.error('Помилка оновлення: $e'));
     }
   }
 
@@ -157,7 +157,7 @@ class TransactionCubit extends Cubit<TransactionState> {
       await _repository.deleteCategory(id);
       await loadData();
     } catch (e) {
-      emit(TransactionState.error('Помилка видалення категорії: $e'));
+      emit(TransactionState.error('Помилка видалення: $e'));
     }
   }
 }

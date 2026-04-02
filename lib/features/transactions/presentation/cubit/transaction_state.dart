@@ -1,8 +1,8 @@
+// ФАЙЛ: lib/features/transactions/presentation/cubit/transaction_state.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../data/models/category_model.dart';
 import '../../../../data/models/transaction_model.dart';
 
-// ОСЬ ЦЕЙ РЯДОК БУВ ПРОПУЩЕНИЙ (Він обов'язковий!):
 part 'transaction_state.freezed.dart';
 
 @freezed
@@ -14,8 +14,9 @@ class TransactionState with _$TransactionState {
     required List<TransactionModel> transactions,
     required List<CategoryModel> categories,
     required double totalBalance,
-    List<dynamic>? currencyRates, // Твоє нове поле
-  }) = _Loaded; // Це ім'я має збігатися зі згенерованим класом
+    required DateTime date, // <--- ДОДАЛИ ПОЛЕ ДАТИ
+    List<dynamic>? currencyRates,
+  }) = _Loaded;
 
   const factory TransactionState.error(String message) = _Error;
 }

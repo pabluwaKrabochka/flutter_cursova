@@ -1,5 +1,8 @@
+// ФАЙЛ: lib/data/services/storage/database_service.dart
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:iconsax_plus/iconsax_plus.dart'; // Імпортуємо нові іконки
 
 class DatabaseService {
   static Database? _database;
@@ -10,14 +13,13 @@ class DatabaseService {
     return _database!;
   }
 
- Future<Database> _initDB(String filePath) async {
+  Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
     return await openDatabase(
       path,
       version: 1,
-      // ДОДАЄМО ЦЕЙ БЛОК:
       onConfigure: (db) async {
         // Вмикаємо підтримку Foreign Keys для каскадного видалення
         await db.execute('PRAGMA foreign_keys = ON');
@@ -49,18 +51,18 @@ class DatabaseService {
       )
     ''');
     
-    // Додаємо категорії (виправили 0 media_payments на числовий код)
+    // Додаємо стартові категорії з використанням IconsaxPlus
     await db.insert('categories', {
       'name': 'Продукти', 
-      'iconCode': 0xe51c, 
-      'colorHex': '0xFFE57373', 
+      'iconCode': IconsaxPlusLinear.shopping_cart.codePoint, // Сучасна іконка кошика
+      'colorHex': '0xFFEF4444', // Червоний колір (AppColors.expense)
       'type': 'expense'
     });
     
     await db.insert('categories', {
       'name': 'Зарплата', 
-      'iconCode': 0xe4b0, // Код іконки payments
-      'colorHex': '0xFF81C784', 
+      'iconCode': IconsaxPlusLinear.money_2.codePoint, // Сучасна іконка грошей
+      'colorHex': '0xFF10B981', // Зелений колір (AppColors.income)
       'type': 'income'
     });
   }

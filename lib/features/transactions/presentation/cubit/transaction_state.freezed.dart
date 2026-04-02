@@ -25,6 +25,7 @@ mixin _$TransactionState {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )
     loaded,
@@ -38,6 +39,7 @@ mixin _$TransactionState {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -51,6 +53,7 @@ mixin _$TransactionState {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -152,6 +155,7 @@ class _$InitialImpl implements _Initial {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )
     loaded,
@@ -169,6 +173,7 @@ class _$InitialImpl implements _Initial {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -186,6 +191,7 @@ class _$InitialImpl implements _Initial {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -289,6 +295,7 @@ class _$LoadingImpl implements _Loading {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )
     loaded,
@@ -306,6 +313,7 @@ class _$LoadingImpl implements _Loading {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -323,6 +331,7 @@ class _$LoadingImpl implements _Loading {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -388,6 +397,7 @@ abstract class _$$LoadedImplCopyWith<$Res> {
     List<TransactionModel> transactions,
     List<CategoryModel> categories,
     double totalBalance,
+    DateTime date,
     List<dynamic>? currencyRates,
   });
 }
@@ -409,6 +419,7 @@ class __$$LoadedImplCopyWithImpl<$Res>
     Object? transactions = null,
     Object? categories = null,
     Object? totalBalance = null,
+    Object? date = null,
     Object? currencyRates = freezed,
   }) {
     return _then(
@@ -425,6 +436,10 @@ class __$$LoadedImplCopyWithImpl<$Res>
             ? _value.totalBalance
             : totalBalance // ignore: cast_nullable_to_non_nullable
                   as double,
+        date: null == date
+            ? _value.date
+            : date // ignore: cast_nullable_to_non_nullable
+                  as DateTime,
         currencyRates: freezed == currencyRates
             ? _value._currencyRates
             : currencyRates // ignore: cast_nullable_to_non_nullable
@@ -441,6 +456,7 @@ class _$LoadedImpl implements _Loaded {
     required final List<TransactionModel> transactions,
     required final List<CategoryModel> categories,
     required this.totalBalance,
+    required this.date,
     final List<dynamic>? currencyRates,
   }) : _transactions = transactions,
        _categories = categories,
@@ -464,7 +480,11 @@ class _$LoadedImpl implements _Loaded {
 
   @override
   final double totalBalance;
+  @override
+  final DateTime date;
+  // <--- ДОДАЛИ ПОЛЕ ДАТИ
   final List<dynamic>? _currencyRates;
+  // <--- ДОДАЛИ ПОЛЕ ДАТИ
   @override
   List<dynamic>? get currencyRates {
     final value = _currencyRates;
@@ -476,7 +496,7 @@ class _$LoadedImpl implements _Loaded {
 
   @override
   String toString() {
-    return 'TransactionState.loaded(transactions: $transactions, categories: $categories, totalBalance: $totalBalance, currencyRates: $currencyRates)';
+    return 'TransactionState.loaded(transactions: $transactions, categories: $categories, totalBalance: $totalBalance, date: $date, currencyRates: $currencyRates)';
   }
 
   @override
@@ -494,6 +514,7 @@ class _$LoadedImpl implements _Loaded {
             ) &&
             (identical(other.totalBalance, totalBalance) ||
                 other.totalBalance == totalBalance) &&
+            (identical(other.date, date) || other.date == date) &&
             const DeepCollectionEquality().equals(
               other._currencyRates,
               _currencyRates,
@@ -506,6 +527,7 @@ class _$LoadedImpl implements _Loaded {
     const DeepCollectionEquality().hash(_transactions),
     const DeepCollectionEquality().hash(_categories),
     totalBalance,
+    date,
     const DeepCollectionEquality().hash(_currencyRates),
   );
 
@@ -526,12 +548,13 @@ class _$LoadedImpl implements _Loaded {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )
     loaded,
     required TResult Function(String message) error,
   }) {
-    return loaded(transactions, categories, totalBalance, currencyRates);
+    return loaded(transactions, categories, totalBalance, date, currencyRates);
   }
 
   @override
@@ -543,12 +566,19 @@ class _$LoadedImpl implements _Loaded {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
     TResult? Function(String message)? error,
   }) {
-    return loaded?.call(transactions, categories, totalBalance, currencyRates);
+    return loaded?.call(
+      transactions,
+      categories,
+      totalBalance,
+      date,
+      currencyRates,
+    );
   }
 
   @override
@@ -560,6 +590,7 @@ class _$LoadedImpl implements _Loaded {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -567,7 +598,13 @@ class _$LoadedImpl implements _Loaded {
     required TResult orElse(),
   }) {
     if (loaded != null) {
-      return loaded(transactions, categories, totalBalance, currencyRates);
+      return loaded(
+        transactions,
+        categories,
+        totalBalance,
+        date,
+        currencyRates,
+      );
     }
     return orElse();
   }
@@ -615,12 +652,14 @@ abstract class _Loaded implements TransactionState {
     required final List<TransactionModel> transactions,
     required final List<CategoryModel> categories,
     required final double totalBalance,
+    required final DateTime date,
     final List<dynamic>? currencyRates,
   }) = _$LoadedImpl;
 
   List<TransactionModel> get transactions;
   List<CategoryModel> get categories;
   double get totalBalance;
+  DateTime get date; // <--- ДОДАЛИ ПОЛЕ ДАТИ
   List<dynamic>? get currencyRates;
 
   /// Create a copy of TransactionState
@@ -706,6 +745,7 @@ class _$ErrorImpl implements _Error {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )
     loaded,
@@ -723,6 +763,7 @@ class _$ErrorImpl implements _Error {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,
@@ -740,6 +781,7 @@ class _$ErrorImpl implements _Error {
       List<TransactionModel> transactions,
       List<CategoryModel> categories,
       double totalBalance,
+      DateTime date,
       List<dynamic>? currencyRates,
     )?
     loaded,

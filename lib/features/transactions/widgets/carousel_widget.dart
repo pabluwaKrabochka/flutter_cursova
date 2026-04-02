@@ -1,7 +1,13 @@
-// ФАЙЛ: promo_carousel.dart
+// ФАЙЛ: lib/features/transactions/widgets/carousel_widget.dart
+// (або promo_carousel.dart, залежно від того, як ти його назвав)
+
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_cursova/core/constants/home_constants.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import '../../../../app/theme/app_colors.dart'; // Підключаємо нашу тему
 
 class PromoCarousel extends StatefulWidget {
   final List<dynamic>? currencyRates;
@@ -14,97 +20,152 @@ class PromoCarousel extends StatefulWidget {
 class _PromoCarouselState extends State<PromoCarousel> {
   int _currentIndex = 0;
 
+  // --- МОДАЛЬНЕ ВІКНО ДЕТАЛЕЙ БАНЕРА ---
+  // --- МОДАЛЬНЕ ВІКНО ДЕТАЛЕЙ БАНЕРА З BLUR ---
   void _showBannerDetails(Map<String, dynamic> banner) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent, // Для гарних кутів і відступів
+      backgroundColor: Colors.transparent, // Фон прозорий, щоб бачити blur
+      barrierColor: Colors.black.withAlpha(76), // Трохи затемнюємо задній фон
       builder: (context) {
-        // Отримуємо висоту екрану для розрахунку розміру картинки
         final screenHeight = MediaQuery.of(context).size.height;
         
-        return Container(
-          // Максимальна висота вікна - 85% від екрану, щоб не перекривати статус-бар
-          constraints: BoxConstraints(maxHeight: screenHeight * 0.85),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Вікно займе мінімально необхідну висоту
-            children: [
-              // Handle (сіра смужка для закриття свайпом)
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  width: 40,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            // 1. РОЗМИТТЯ (BLUR) ВБИРАЄТЬСЯ В УВЕСЬ ЕКРАН ПІД МОДАЛКОЮ
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                  child: Container(color: Colors.transparent),
                 ),
               ),
-              
-              // Основний контент із прокруткою
-              Flexible(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(), // Плавна анімація прокрутки
-                  padding: const EdgeInsets.only(left: 24, right: 24, bottom: 40),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Велика картинка (завжди займає 25% від висоти екрану)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(
-                          banner["image"],
-                          height: screenHeight * 0.22,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            height: screenHeight * 0.25,
-                            color: Colors.grey[200],
-                            child: const Center(child: Text("Банер відсутній")),
+            ),
+            
+            // 2. САМА КАРТКА БАНЕРА
+            Container(
+              constraints: BoxConstraints(maxHeight: screenHeight * 0.88),
+              decoration: const BoxDecoration(
+                color: AppColors.background, // Сучасний фон (світло-сірий)
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black26, blurRadius: 30, offset: Offset(0, -10)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Смужка для закриття свайпом
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 20),
+                      width: 48,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 40),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Картинка з гарним скругленням і кнопкою "Х"
+                          Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(30), 
+                                      blurRadius: 20, 
+                                      offset: const Offset(0, 10)
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: Image.asset(
+                                    banner["image"],
+                                    height: screenHeight * 0.22, // Трохи збільшено для wow-ефекту
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      height: screenHeight * 0.26,
+                                      color: Colors.grey[200],
+                                      child: const Center(child: Text("Банер відсутній", style: TextStyle(color: AppColors.textSecondary))),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Кнопка закриття поверх картинки (стиль iOS)
+                              Positioned(
+                                top: 12,
+                                right: 12,
+                                child: GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withAlpha(102), // Напівпрозорий чорний
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(IconsaxPlusLinear.close_circle, color: Colors.white, size: 20),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 32),
+                          
+                          // Назва банера
+                          Text(
+                            banner["title"],
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900, // Екстра-жирний заголовок
+                              color: AppColors.textPrimary,
+                              height: 1.2,
+                              letterSpacing: -0.5, // Сучасна типографіка
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          
+                          // Опис банера
+                          Text(
+                            banner["description"],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                              height: 1.6, // Великий інтервал для читабельності
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
-                      const SizedBox(height: 24),
-                      
-                      // Назва
-                      Text(
-                        banner["title"],
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5, // Трохи розрядив текст для кращого вигляду
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Опис
-                      Text(
-                        banner["description"],
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[800],
-                          height: 1.6, // Міжрядковий інтервал для зручності читання
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    final double carouselHeight = MediaQuery.of(context).size.height * 0.22;
+    // Трохи збільшуємо висоту, щоб вмістити тіні (margin: 8)
+    final double carouselHeight = MediaQuery.of(context).size.height * 0.23;
 
     final List<Widget> items = [
       _buildRatesTable(widget.currencyRates),
@@ -117,25 +178,29 @@ class _PromoCarouselState extends State<PromoCarousel> {
           items: items,
           options: CarouselOptions(
             height: carouselHeight,
-            viewportFraction: 0.93,
+            viewportFraction: 0.9, // Трохи менше, щоб було видно краї сусідніх карток
             enableInfiniteScroll: true,
-            autoPlay: true,
-            autoPlayInterval: const Duration(seconds: 6),
+            autoPlay: false, // Включив автопрокрутку для динаміки
+            autoPlayInterval: const Duration(seconds: 8),
             enlargeCenterPage: true,
             onPageChanged: (index, reason) => setState(() => _currentIndex = index),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+        
+        // Індикатори (Крапки)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: items.asMap().entries.map((entry) {
+            final isActive = _currentIndex == entry.key;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              width: _currentIndex == entry.key ? 22.0 : 7.0, height: 7.0,
+              width: isActive ? 24.0 : 8.0, 
+              height: 8.0,
               margin: const EdgeInsets.symmetric(horizontal: 4.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
-                color: _currentIndex == entry.key ? Colors.blue : Colors.grey.shade300,
+                color: isActive ? AppColors.primary : Colors.grey.withAlpha(76),
               ),
             );
           }).toList(),
@@ -144,19 +209,20 @@ class _PromoCarouselState extends State<PromoCarousel> {
     );
   }
 
+  // --- БАНЕР-КАРТИНКА ---
   Widget _buildClickableBanner(Map<String, dynamic> banner) {
     return GestureDetector(
       onTap: () => _showBannerDetails(banner),
       child: Container(
         width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4), // Відступи для тіні
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            // Легка тінь під самими банерами в каруселі
             BoxShadow(
-              color: Colors.black.withAlpha(11),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              color: Colors.black.withAlpha(22), // М'яка преміальна тінь
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -166,10 +232,10 @@ class _PromoCarouselState extends State<PromoCarousel> {
             banner["image"],
             width: double.infinity,
             height: double.infinity,
-            fit: BoxFit.fill,
+            fit: BoxFit.cover, // cover краще заповнює простір
             errorBuilder: (_, __, ___) => Container(
               color: Colors.grey[200],
-              child: const Center(child: Text("Банер відсутній")),
+              child: const Center(child: Text("Банер відсутній", style: TextStyle(color: AppColors.textSecondary))),
             ),
           ),
         ),
@@ -177,20 +243,28 @@ class _PromoCarouselState extends State<PromoCarousel> {
     );
   }
 
+  // --- ТАБЛИЦЯ ВАЛЮТ ---
   Widget _buildRatesTable(List<dynamic>? rates) {
     if (rates == null || rates.isEmpty) {
       return Container(
-        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20)),
-        child: const Center(child: CircularProgressIndicator()),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(20)),
+        child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
       );
     }
+    
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4), // Відступи для тіні
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 6, offset: const Offset(0, 2))
+          BoxShadow(
+            color: Colors.black.withAlpha(15), 
+            blurRadius: 15, 
+            offset: const Offset(0, 6)
+          )
         ],
       ),
       child: Column(
@@ -199,20 +273,39 @@ class _PromoCarouselState extends State<PromoCarousel> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Валюта', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-              Text('Купівля', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-              Text('Продаж', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+              Text('Валюта', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+              Text('Купівля', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+              Text('Продаж', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
             ],
           ),
-          const Divider(),
+          const SizedBox(height: 8),
+          Divider(color: Colors.grey.withAlpha(50), height: 1),
+          const SizedBox(height: 8),
+          
           ...rates.where((e) => e['ccy'] == 'USD' || e['ccy'] == 'EUR').map((rate) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${rate['ccy']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text('${double.parse(rate['buy']).toStringAsFixed(2)} ₴', style: const TextStyle(fontSize: 16)),
-                Text('${double.parse(rate['sale']).toStringAsFixed(2)} ₴', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
+                // Назва валюти (жирна, темна)
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(color: AppColors.primary.withAlpha(25), shape: BoxShape.circle),
+                      child: Text(
+                        rate['ccy'] == 'USD' ? '\$' : '€', 
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 14)
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('${rate['ccy']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary)),
+                  ],
+                ),
+                // Купівля
+                Text('${double.parse(rate['buy']).toStringAsFixed(2)} ₴', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                // Продаж (колір Primary)
+                Text('${double.parse(rate['sale']).toStringAsFixed(2)} ₴', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
           )),
