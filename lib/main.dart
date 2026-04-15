@@ -12,7 +12,7 @@ void main() async {
 
 final prefs = await SharedPreferences.getInstance();
 await prefs.setString('user_currency', '₴'); // Ставимо UAH за замовчуванням
- final isFirstRun = false; // prefs.getBool('is_first_run') ?? true;
+ final isFirstRun = prefs.getBool('is_first_run') ?? true;
 
   runApp(MyApp(isFirstRun: isFirstRun));
 }
